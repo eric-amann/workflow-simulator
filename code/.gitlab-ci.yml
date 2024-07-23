@@ -1,0 +1,70 @@
+image: docker:20.10.12-dind
+
+stages:
+  - build
+  - publish
+
+services:
+  - docker:20.10.12-dind
+
+build-image:
+  tags:
+    - docker-privileged
+  stage: build
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:latest || true
+    - >
+      docker build
+      --pull
+      --build-arg http_proxy=$http_proxy
+      --build-arg https_proxy=$https_proxy
+      --build-arg no_proxy=$no_proxy
+      --cache-from $CI_REGISTRY_IMAGE:latest
+      --label "de.uni-koblenz.process-science.image.title=$CI_PROJECT_TITLE"
+      --label "de.uni-koblenz.process-science.image.url=$CI_PROJECT_URL"
+      --label "de.uni-koblenz.process-science.image.created=$CI_JOB_STARTED_AT"
+      --label "de.uni-koblenz.process-science.image.revision=$CI_COMMIT_SHA"
+      --label "de.uni-koblenz.process-science.image.version=$CI_COMMIT_REF_NAME"
+      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+push-image-latest:
+  tags:
+    - docker-privileged
+  variables:
+    GIT_STRATEGY: none
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  stage: publish
+  dependencies:
+    - build-image
+  only:
+    - main
+  script:
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+push-image-tag:
+  tags:
+    - docker-privileged
+  variables:
+    GIT_STRATEGY: none
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  stage: publish
+  dependencies:
+    - build-image
+  only:
+    - tags
+  script:
+    - echo -n $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME

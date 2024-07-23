@@ -1,0 +1,28 @@
+# The root address of the Camunda Operate instance
+operateAddress: http://localhost:8081
+
+# The root address of the Camunda Tasklist instance
+tasklistAddress: http://localhost:8082
+
+# The address of the Camunda Elasticsearch instance
+elasticsearchAddress: localhost:9200
+
+# The address of the Camunda Zeebe Gateway
+zeebeGatewayAddress: 127.0.0.1:26500
+
+# The address Camunda Keycloak instance
+keycloakAddress: http://localhost:18080
+
+# The client ID set in Camunda Identity
+#
+# A client ID can be set by creating a new application in the Camunda Identity module (default: http://localhost:8084). Click on "Add 
+# application" and enter a descriptive name (e.g. Workflow-Simulator). Enter any value to Redirect URIs (e.g. http://localhost). Make 
+# sure that your application has acces to the required APIs. Click on your new appliction in the list and then on "Access to APIs".
+# Add the following permissions to the application by clicking on "Assign permissions":
+# - Operate API: read/write
+# - Tasklist API: read/write
+# - Zeebe API: write
+clientId: Workflow-Simulator
+# The client secret can be obtained from the "Application details" page for you application in Camunda Identity. If you have not your 
+# registered your application with Camunda Identity, refer to the description above.
+clientSecret: hQzZnncaO1h9xdtmJX6bzxHReaz4ahQ3

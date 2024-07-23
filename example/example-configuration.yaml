@@ -1,0 +1,179 @@
+
+- id: restaurant_example
+  startTime: 2023-09-01T00:00:00
+  endTime: 2023-09-06T18:00:00
+  maxInstances: 10
+  incrementPerTick: 30
+
+  workerConfigs:
+    - id: waiters_day
+      amount: 3
+      baselinePerformance: 1
+      scheduleId: day_shift
+      allowedTaskIds: [Activity_waiter_1, Activity_waiter_2, Activity_waiter_3, Activity_waiter_4, Activity_waiter_5, Activity_waiter_6, Activity_waiter_7, Activity_waiter_8, Activity_waiter_9, Activity_bar_1]
+
+    - id: waiters_evening
+      amount: 4
+      baselinePerformance: 1
+      scheduleId: evening_shift
+      allowedTaskIds: [Activity_waiter_1, Activity_waiter_2, Activity_waiter_3, Activity_waiter_4, Activity_waiter_5, Activity_waiter_6, Activity_waiter_7, Activity_waiter_8, Activity_waiter_9, Activity_bar_1]
+
+    - id: waiters_night
+      amount: 2
+      baselinePerformance: 0.8
+      scheduleId: night_shift
+      allowedTaskIds: [Activity_waiter_1, Activity_waiter_2, Activity_waiter_3, Activity_waiter_4, Activity_waiter_5, Activity_waiter_6, Activity_waiter_7, Activity_waiter_8, Activity_waiter_9, Activity_bar_1]
+
+    - id: cooks_day
+      amount: 3
+      baselinePerformance: 1
+      scheduleId: day_shift
+      allowedTaskIds: [Activity_kitchen_1, Activity_kitchen_2, Activity_kitchen_3]
+
+    - id: cooks_evening
+      amount: 3
+      baselinePerformance: 1
+      scheduleId: evening_shift
+      allowedTaskIds: [Activity_kitchen_1, Activity_kitchen_2, Activity_kitchen_3]
+
+    - id: cooks_night
+      amount: 1
+      baselinePerformance: 1
+      scheduleId: night_shift
+      allowedTaskIds: [Activity_kitchen_1, Activity_kitchen_2, Activity_kitchen_3]
+
+    - id: barPersonal
+      amount: 1
+      baselinePerformance: 2
+      scheduleId: night_shift
+      allowedTaskIds: Activity_bar_1
+
+  processConfigs:
+    - id: restaurant_process
+      filePath: "{your path}/example/example_restaurant.bpmn"
+      interval: PT10M
+      scheduleId: process
+      startingInstances: 5
+
+  variableConfigs:
+    numeric:
+      - name: bill
+        taskIds: Activity_waiter_6
+        generationType: RANDOM_NORMAL_DISTRIBUTION
+        mean: 120
+        standardDeviation: 2
+        decimalPlaces: 2
+
+    bool:
+      - name: foodOrder
+        taskIds: Activity_waiter_2
+        chance: 70
+
+    string:
+      - name: paymentMethod
+        taskIds: Activity_waiter_6
+        possibilities:
+          card: 15
+          cash: 3
+          none: 2
+
+  taskConfigs:
+    - id: [Activity_waiter_1, Activity_waiter_2, Activity_waiter_3, Activity_waiter_4, Activity_waiter_6, Activity_waiter_7, Activity_waiter_8]
+      processingTime: PT2M
+    - id: Activity_waiter_5
+      processingTime: PT4M
+    - id: Activity_waiter_9
+      processingTime: PT5M
+    - id: Activity_waiter_10
+      processingTime: PT15M
+    - id: Activity_bar_1
+      processingTime: PT15M
+    - id: [Activity_kitchen_1, Activity_kitchen_3]
+      processingTime: PT6M
+    - id: Activity_kitchen_2
+      processingTime: PT30M
+
+  contextConfigs:
+    - id: weather_data
+      filePath: "{your path}/example/example_weather_data.csv"
+      timestampFormat: "dd.MM.yyyy HH:mm"
+      timestampColumn: 1
+
+    - id: time_data
+      filePath: "{your path}/example/example_time_data.csv"
+      timestampFormat: "dd.MM.yyyy HH:mm"
+      timestampColumn: 1
+
+  modifierConfigs:
+    - contextId: weather_data
+      column: 10
+      targetId: restaurant_process
+      targetAttribute: interval
+      modificationType: MULTIPLY
+
+    - contextId: time_data
+      column: 2
+      targetId: restaurant_process
+      targetAttribute: interval
+      modificationType: MULTIPLY
+
+  scheduleConfigs:
+    - id: day_shift
+      weekdayDefinitions:
+        - weekday: 0
+          startTime: 08:00
+          activeHours: PT8H
+
+      monthDefinitions:
+        - month: 0
+          inactiveDays: []
+        - month: 12
+          inactiveDays: [24, 25, 26]
+
+    - id: evening_shift
+      weekdayDefinitions:
+        - weekday: 0
+          startTime: 16:00
+          activeHours: PT8H
+
+      monthDefinitions:
+        - month: 0
+          inactiveDays: []
+        - month: 12
+          inactiveDays: [24, 25, 26]
+
+    - id: night_shift
+      weekdayDefinitions:
+        - weekday: 0
+          startTime: 00:00
+          activeHours: PT8H
+
+      monthDefinitions:
+        - month: 0
+          inactiveDays: []
+        - month: 12
+          inactiveDays: [24, 25, 26]
+
+    - id: substitutes
+      weekdayDefinitions:
+        - weekday: 0
+          startTime: 18:00
+          activeHours: PT6H
+
+      monthDefinitions:
+        - month: 0
+          inactiveDays: []
+        - month: 12
+          inactiveDays: [24, 25, 26]
+
+    - id: process
+      weekdayDefinitions:
+        - weekday: 0
+          startTime: 00:00
+          activeHours: PT24H
+
+      monthDefinitions:
+        - month: 0
+          inactiveDays: []
+        - month: 12
+          inactiveDays: [24, 25, 26]

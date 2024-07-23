@@ -1,0 +1,240 @@
+
+# A list simulation configurations. Each entry represents one environment in which processes can be executed. Several
+# simulation configurations can be provided in a single configuration file. In this case the simulations are deployed
+# and executed simultaneously.
+  # A unique identifier for the specific simulation configuration. This can be any string.
+- id:
+  # The start date and time of the simulation
+  startTime:
+  # The end date of the simulation (must be after start date)
+  endTime:
+  # The maximum number of instances to be simulated. (optional)
+  maxInstances:
+  # The increment per simulation tick. The lower this value is set the finer the simulation will be performed.
+  # However, the lower this value is set, the longer the simulation will run until the end date is reached. (ISO 8601
+  # Duration)
+  incrementPerTick:
+
+
+  # A list of worker configurations. Workers are agents that claim and complete tasks in the configured processes. Each
+  # configuration can contain an arbitrary number of workers with the same properties.
+  workerConfigs:
+      # A unique identifier for the specific worker configuration. This can be any string.
+    - id:
+      # The number of worker agents created with this configuration
+      amount:
+      # A simple performance value of how fast this group of workers complete tasks. (optional)
+      # 1 = normal performance
+      # 0.5 = halved performance
+      baselinePerformance:
+      # The time schedule for the worker group. (optional)
+      scheduleId:
+      # A list of all processes ids that these workers are allowed to work on. If left empty all tasks are allowed.
+      # (optional)
+      allowedTasks:
+
+
+  # A list of process configurations. Processes are automatically deployed to camunda and provide tasks for the workers
+  # to process.
+  processConfigs:
+      # A unique identifier for the specific worker configuration. This can be any string.
+    - id:
+      # The absolute path of the process bpmn file. The file must be deployable to Camunda 8.
+      filePath:
+      # The standard interval at which new process instances are generated. (ISO 8601 Duration)
+      interval:
+      # The time schedule for the process. (optional)
+      scheduleId:
+      # The number of process instances waiting at the start of the simulation. (optional)
+      startingInstances:
+
+
+  # A list of user task configurations. User tasks are part of a process and referenced through the ID specified in the
+  # BPMN model. (optional)
+  taskConfigs:
+      # The ID specified in the BPMN model.
+    - id:
+      # The expected processing time for the task. This can be influenced by outside factors like worker performance or
+      # context data. (ISO 8601 Duration)
+      processingTime:
+
+
+  # Process variables can be defined for any task. Once configured, they will be set any time the specified task is pro-
+  # cessed by a worker. The definition of variables is essential for most processes containing exclusive gateways, where
+  # a process variable controls the sequence flow. Three types of variables are allowed: numeric, boolean, and string.
+  variableConfigs:
+    # Numeric variables contain a number as their value.
+    numeric:
+        # The name of the variable in the process. This is used as the identifier for the assignment of modifiers.
+      - name:
+        # The tasks for which the variable shall be set, anytime the task is completed.
+        taskIds:
+        # The with type of variable value generation. Values can either be randomly generated or taken from a context
+        # file. The following values are allowed:
+        # • RANDOM, RANDOM_UNIFORM - A random value with a uniform distribution. (e.g. the rolling of a dice)
+        # • RANDOM_NORMAL_DISTRIBUTION - A random value with a normal distribution. (e.g. average height in humans)
+        generationType:
+        # The lower boundary for the random number generation. (only available for generation type RANDOM &
+        # RANDOM_UNIFORM)
+        lowerBound:
+        # The upper boundary for the random number generation. (only available for generation type RANDOM &
+        # RANDOM_UNIFORM)
+        upperBound:
+        # The mean value for normal distributed values. (only available for generation Type RANDOM_NORMAL_DISTRIBUTION)
+        mean:
+        # The standard deviation value for normal distributed values. (only available for generation Type
+        # RANDOM_NORMAL_DISTRIBUTION)
+        standardDeviation:
+        # The number of decimal places for the variable value.
+        decimalPlaces:
+
+    # Boolean variables can either be 'true' or 'false'.
+    bool:
+        # The name of the variable in the process.
+      - name:
+        # The tasks for which the variable shall be set, anytime the task is completed.
+        taskIds:
+        # The probability of a 'true' value in percent. (only available for generation type RANDOM)
+        chance:
+
+    # String variables contain text as their value.
+    string:
+        # The name of the variable in the process.
+      - name:
+        # The tasks for which the variable shall be set, anytime the task is completed.
+        taskIds:
+        # The possible values for the variable with their number of occurrence. For example, if two possible string val-
+        # ues are defined, the first one with an occurrence of 1 and the second one with an occurrence of 5, the second
+        # string has a five times higher chance of being selected. (only available for generation type RANDOM)
+        possibilities:
+
+    # Context variables take their value from a context definition.
+    context:
+      # The name of the variable in the process.
+      - name:
+        # The tasks for which the variable shall be set, anytime the task is completed.
+        taskIds:
+        # The unique identifier of the context definition from which the value shall be loaded.
+        contextId:
+        # The column number of the context file
+        column:
+
+
+  # Context files provide additional possibilities to the simulation by providing outside information (e.g. temperature
+  # data). Context as such has no direct influence on the simulation, but it can be used as process variable values or
+  # to modify simulation parameters through modificator.
+  contextConfigs:
+      # A unique identifier for the specific context configuration. This can be any string.
+    - id:
+      # The absolute path of the context data file. The file must be in CSV format.
+      filePath:
+      # The column number in which the timestamp value is located
+      timestampColumn:
+      # The format for the timestamp value (e.g. yyyy-MM-DD'T'hh:mm:ss)
+      timestampFormat:
+
+
+  # Modificators are powerful tools add additional complexity to the simulation. They are used to dynamically modify
+  # configuration attributes such as worker performance or the process instance interval during the simulation runtime
+  # based on context data.
+  modifierConfigs:
+      # The ID of the context to be used as the basis for the modificator.
+    - contextId:
+      # The column number in which the value that provides the modification basis is located.
+      column:
+      # The ID of the target object that shall be modified. Allowed targets are
+      # • Workers
+      # • Processes
+      # • Tasks
+      # • Variables
+      # • Schedules
+      targetId:
+      # The attribute name that shall be modified as named in this configuration file. Allowed target attributes are
+      #
+      # For workers:
+      #   • name
+      #   • baselinePerformance
+      #
+      # For processes:
+      #   • interval
+      #
+      # For tasks:
+      #   • processingTime
+      #
+      # For numeric variables:
+      #   • lowerBound
+      #   • upperBound
+      #   • mean
+      #   • standardDeviation
+      #
+      # For boolean variables:
+      #   • chance
+      #
+      # For schedules variables:
+      #   • defaultStartTime
+      #   • mondayStartTime
+      #   • tuesdayStartTime
+      #   • wednesdayStartTime
+      #   • thursdayStartTime
+      #   • fridayStartTime
+      #   • saturdayStartTime
+      #   • sundayStartTime
+      #
+      #   • defaultActiveHours
+      #   • mondayActiveHours
+      #   • tuesdayActiveHours
+      #   • wednesdayActiveHours
+      #   • thursdayActiveHours
+      #   • fridayActiveHours
+      #   • saturdayActiveHours
+      #   • sundayActiveHours
+      #
+      #   • defaultInactiveDays
+      #   • januaryInactiveDays
+      #   • februaryInactiveDays
+      #   • marchInactiveDays
+      #   • aprilInactiveDays
+      #   • mayInactiveDays
+      #   • juneInactiveDays
+      #   • julyInactiveDays
+      #   • augustInactiveDays
+      #   • septemberInactiveDays
+      #   • octoberInactiveDays
+      #   • novemberInactiveDays
+      #   • decemberInactiveDays
+      targetAttribute:
+      # The type of modification which shall be applied to the target attribute. Depending on the target's data type
+      # different types are available:
+      # • REPLACE - replaces the target with the value from the context file (all data types; context value must be the
+      #             same data type as the target)
+      # • ADD - adds the context value and the target (numeric, date time, time, duration; context value must be the
+      #         same datatype as the target)
+      # • SUBTRACT - subtracts the context value from the target (numeric, date time, time, duration; context value must
+      #              be the same datatype as the target)
+      # • MULTIPLY - Multiplies the target with the context value (numeric, duration; context value must be numeric)
+      # • DIVIDE - Divides the target by the context value (numeric, duration; context value must be numeric)
+      # • EXPONENTIATION - Raises the target to the power of the context value (numeric; context value must be numeric)
+      modificationType:
+
+
+  # Schedules can be applied to workers and processes. They define the active times of these agents. For example, a wor-
+  # ker might only execute tasks during predefined work hours.
+  scheduleConfigs:
+      # A unique identifier with which the schedule can be assigned to workers or processes. This can be any string.
+    - id:
+      # The definition of work hours for each day of the week
+      weekdayDefinitions:
+          # The day of the week as a string or number (1 = Monday, 7 = Sunday, 0 = Default). If a weekday is not expli-
+          # citly defined, the default configuration is used.
+        - weekday:
+          # The start time at the specific weekday
+          startTime:
+          # The duration of activity starting from the start time. (ISO 8601 Duration)
+          activeHours:
+
+      monthDefinition:
+          # The month as a string or number (1 = January, 12 = December, 0 = default) If a month is not explicitly de-
+          # fined, the default configuration is used.
+        - month:
+          # An array of days on which the agents assigned to this schedule are inactive.
+          inactiveDays: []
