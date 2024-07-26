@@ -102,3 +102,4 @@ The simulation ID is specified in the configuration file. For the example scenar
 ```
 start "restaurant_example"
 ```
+*Attention:* If you want to run the example, you have to set the correct paths for the required files in the scenario configuration file (example-configuration.yaml). To do so you have to edit the file and replace "{your path}" with the absolute path of the file on your system.

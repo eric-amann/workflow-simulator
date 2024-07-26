@@ -2,7 +2,7 @@
 - id: restaurant_example
   startTime: 2023-09-01T00:00:00
   endTime: 2023-09-06T18:00:00
-  maxInstances: 10
+  maxInstances: 1000
   incrementPerTick: 30
 
   workerConfigs:
@@ -50,6 +50,7 @@
 
   processConfigs:
     - id: restaurant_process
+      # If you want to run this example, replace '{your path} with the correct path of the file on your system' (e.g. "C:/Users/username")
       filePath: "{your path}/example/example_restaurant.bpmn"
       interval: PT10M
       scheduleId: process
@@ -95,11 +96,13 @@
 
   contextConfigs:
     - id: weather_data
+      # If you want to run this example, replace '{your path} with the correct path of the file on your system' (e.g. "C:/Users/username")
       filePath: "{your path}/example/example_weather_data.csv"
       timestampFormat: "dd.MM.yyyy HH:mm"
       timestampColumn: 1
 
     - id: time_data
+      # If you want to run this example, replace '{your path} with the correct path of the file on your system' (e.g. "C:/Users/username")
       filePath: "{your path}/example/example_time_data.csv"
       timestampFormat: "dd.MM.yyyy HH:mm"
       timestampColumn: 1
